@@ -6,6 +6,7 @@ from pathlib import Path
 import nhentai
 import requests
 import os
+import certifi
 import sys
 
 KV="""
@@ -98,25 +99,46 @@ class Natto_App(MDApp):
             self.media = doujin.media_id
             self.images = doujin.pages
         except:
-            pass
+            cafile = certifi.where()
+            with open('certificate.pem','rb') as infile:
+                customca = infile.read()
+            with open(cafile,'rb') as outfile:
+                outfile.write()
         pass
 
     def download(self):
+        self.loading=MDDialog(title="Download",text="Downloading",size_hint=(0.4,0.4))
+        self.loading.open()
+        Clock.schedule_once(self.main_download,0.1)
         
+    def main_download(self,dt):
         try:
             path="./doujins/"+str(self.doujin_name)
-            os.makedirs(path)
+            try:
+            	os.makedirs(path)
+            except:
+            	pass
+            print("cc")
             z=-1
             for x in self.images:
                 z += 1
+                print("downloading")
                 image = requests.get(x[0])
                 file = open(path+"/"+str(z),"wb")
                 file.write(image.content)
                 file.close()
+            time=0.01*float(z)
+            if time>0:
+               Clock.schedule_once(self.finished,time)
             
         except:
             pass
         
+        pass
+    def finished(self, dt):
+        self.loading.dismiss()
+        self.ending = MDDialog(title="Download",text="Downloading",size_hint=(0.4,0.4))
+        self.ending.open()
         pass
         
 Natto_App().run()
