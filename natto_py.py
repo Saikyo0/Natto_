@@ -16,7 +16,7 @@ Screen:
         id: thumbnail
         source:"null"
         pos_hint:{"center_x":0.5,"center_y":0.4}
-        size_hint:(0.8,0.7)
+        size_hint:(0.6,0.6)
         
     MDToolbar:
         id: toolbar
@@ -28,7 +28,7 @@ Screen:
         id: sauce
         hint_text:"Sauce"
         color_mode: "accent"
-        pos_hint:{"center_x":0.5,"center_y":0.8}
+        pos_hint:{"center_x":0.5,"center_y":0.85}
         size_hint_y: None
         size_hint_x: .6
         
@@ -44,7 +44,7 @@ Screen:
             
     MDLabel:
         id: description
-        pos_hint:{"center_x":0.5,"center_y":0.45}
+        pos_hint:{"center_x":0.5,"center_y":0.7}
         size_hint_x:(0.6)
         bold: True
         theme_text_color:"Custom"
@@ -125,30 +125,33 @@ class Natto_App(MDApp):
         Clock.schedule_once(self.main_download,0.1)
         
     def main_download(self,dt):
+        path="/storage/emulated/0/natto/downloaded/doujins/"
+        name = str(self.defs['english'])
+        name=name.split(" ")
+        name=name[1]
+        print(path+name)
         try:
-            path="/storage/emulated/0/natto/downloaded/doujins/"+str(self.doujin_name)
-            try:
-            	os.makedirs(path)
-            except:
-            	print("download directory failure")
-            z=-1
-            for x in self.images:
-                z += 1
-                print("downloading")
-                image = requests.get(x[0])
-                file = open(path+"/"+str(z)+".jpg","wb")
-                file.write(image.content)
-                file.close()
-               	Clock.schedule_once(self.finished,0.1)
-            
+            os.makedirs(path+name)
         except:
-            print("image download error")
+            print("either file exist or makedir error")
             pass
-        
+        z=-1
+        try:
+	    for x in self.images:
+	        z += 1
+	        print("downloading")
+	        image = requests.get(x[0])
+	        file = open(path+name+"/"+str(z)+".jpg","wb")
+	        file.write(image.content)
+	        print("downloaded")
+	        file.close()
+            Clock.schedule_once(self.finished,0.1)
+        except:
+            print("download error")
         pass
     def finished(self, dt):
         self.loading.dismiss()
-        self.ending = MDDialog(title="Download",text="Downloaded",size_hint=(0.4,0.4))
+        self.ending = MDDialog(title="Download",text="Download finished",size_hint=(0.4,0.4))
         self.ending.open()
         pass
         
